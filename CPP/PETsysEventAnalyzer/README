@@ -1,0 +1,33 @@
+
+ general PETsys group analyser / event collector
+ 
+ last edit Aug-9, 2021 (EOC)
+
+ execute:
+ --------------------------
+ 
+ ./build/apps/PETsysGroupAnalyser <setup> <DataLabel> <dT> <DataType> <verbose> <Nrows>
+ 
+ 
+ supported options:
+ --------------------------
+ 
+    setup                  BoxSi_proto2.1, BoxSi_proto2.2, PlasticScintillator_SensL8x8
+    DataType               single, group
+    Nrows                  defaul is all events ( Nrows=-1)
+
+ 
+ 
+ 
+ examples:
+ --------------------------
+
+  ./build/apps/PETsysEventAnalyzer BoxSi_proto2.2 vth_1PE Cf252  10_sec single
+  ./build/apps/PETsysEventAnalyzer BoxSi_proto2.1 vth_2PE vth12e_10_Na22 10sec single
+ ./build/apps/PETsysEventAnalyzer BoxSi_proto2.1 Na22_10uC 10_sec single 3
+ ./build/apps/PETsysEventAnalyzer BoxSi_proto2.1 Na22_10uC 10_sec single 1 100
+ ./build/apps/PETsysEventAnalyzer BoxSi_proto2.1 Cf252 10sec group 3
+ ./build/apps/PETsysEventAnalyzer PlasticScintillator_SensL8x8 PlasticScintillator_Cf252_1mm_vth1_20_vth2_20 30_sec 3
+ ./build/apps/PETsysEventAnalyzer PlasticScintillator_SensL8x8 PlasticScintillator_cosmic_vth1_20_vth2_20 30_sec 3
+
+
