@@ -1,16 +1,17 @@
 #include <iostream>
 #include <auxiliary.hpp>
+#define ms_to_us 1e3
+#define ms_to_ns 1e6
 
 // csv files
-// read group csv-file
+// read PetSys (single/group) csv-file
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-std::vector< std::vector<double> > auxiliary::ReadPetSysCSV( std::string filename, int Nrows ){
+std::vector< std::vector<double> > auxiliary::ReadCSV( std::string filename, int Nrows ){
     // Reads a CSV file into a vector of <string, vector<int>> pairs where
     // each pair represents <column name, column values>
     // Create a vector of <string, int vector> pairs to store the result
     std::vector< std::vector<double> > result;
     std::vector<double> line_vals;
-    
     
     // Create an input filestream
     std::ifstream myFile(filename);
@@ -48,12 +49,68 @@ std::vector< std::vector<double> > auxiliary::ReadPetSysCSV( std::string filenam
             std::cout << std::endl;
         }
     }
-    
     // Close file
     myFile.close();
-    
     return result;
 }
+
+
+// csv files
+// read PetSys (single/group) csv-file
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+std::vector< detectorEvent > auxiliary::ReadEventsCSV( std::string filename, int Nrows ){
+    // read a CSV file of
+    //    {'eventID','N(SiPMs)','time[ms]','Qtot[a.u.]','detector','channels'}
+    std::vector< detectorEvent > events;
+    detectorEvent event;
+    
+    std::vector<double> line_vals;
+    
+    // Create an input filestream and make sure the file is open
+    std::ifstream myFile(filename);
+    if(!myFile.is_open()) throw std::runtime_error("Could not open file");
+    
+    // Helper vars
+    std::string line, colname;
+    double val;
+    int lineNumber=0;
+    // Read first line - header
+    std::getline(myFile, line);
+    
+    // Read data, line by line
+    while(std::getline(myFile, line)) {
+        std::stringstream ss(line);
+        if ( verbose > 5 ) std::cout << line << std::endl;
+        event = detectorEvent();
+        
+        // read line values
+        line_vals.clear();
+        while(ss >> val){
+            line_vals.push_back(val);
+            if(ss.peek() == ',') ss.ignore();
+        }
+        // plug into "event"
+        event.SetEventID            ( line_vals.at(0) );
+        event.SetNhits              ( line_vals.at(1) );
+        event.SetEventGivenTime     ( line_vals.at(2) );
+        event.SetEventGivenCharge   ( line_vals.at(3) );
+        event.SetDetector           ( line_vals.at(4) );
+        // and we do not set the individual SiPM hits at this stage,
+        // as this implementation is seemingly a little challanging and unnecessary...
+        
+        
+        events.push_back( event );
+        lineNumber++;
+        // stop after N lines
+        if ( verbose > 2 )                  event.Print();
+        if (Nrows>0 && lineNumber>(Nrows-1) )    break;
+    }
+    // Close file
+    myFile.close();
+    return events;
+    
+}
+
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 // open and write event csv-file
@@ -418,7 +475,7 @@ std::vector<double> auxiliary::CollectDetectionTimeDifferencesArray(std::vector<
         for (size_t next_evtIdx = evtIdx+1; next_evtIdx < std::min(evtIdx+200, events.size()); next_evtIdx++){
             double dt = event_times_ms.at(next_evtIdx) - t;
             
-            if ((dt==0) && (verbose>0)){
+            if ((dt==0) && (verbose>2)){
                 std::cout
                 << "CollectDetectionTimeDifferencesArray() dt=0 between events "
                 << evtIdx << " (" << t << " ms)  and " << next_evtIdx << " (" << event_times_ms.at(next_evtIdx) << " ms)" << endl;
@@ -480,6 +537,15 @@ void auxiliary::ExtractSinglesDoublesTriples(std::vector<detectorEvent> events,
     for (size_t evtIdx=0; evtIdx < events.size()-1; evtIdx++) {
         if ( dt_adjacent.at(evtIdx) < R_gate ) {
             Ndoubles_direct ++ ;
+            if (verbose>0){
+                std::cout
+                << "dt(event " << evtIdx                << " - event "<< evtIdx+1 << ") = "
+                << dt_adjacent.at(evtIdx)*ms_to_ns      << " ns, "
+                << "counting as a double! "
+                << "( t(" << evtIdx     << ")=" << t.at(evtIdx)*ms_to_ns   << " ns, "
+                << "t(" << evtIdx+1   << ")=" << t.at(evtIdx+1)*ms_to_ns << " ns )"
+                << std::endl;
+            }
             if ( evtIdx < events.size()-2 ){
                 if (( dt_adjacent.at(evtIdx) + dt_adjacent.at(evtIdx+1)) < R_gate ) {
                     Ntriples_direct ++ ;

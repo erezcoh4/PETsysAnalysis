@@ -1,0 +1,8 @@
+/home/yuval/software/my_simulations/build/CMakeFiles/install/strip.dir
+/home/yuval/software/my_simulations/build/CMakeFiles/install/local.dir
+/home/yuval/software/my_simulations/build/CMakeFiles/install.dir
+/home/yuval/software/my_simulations/build/CMakeFiles/list_install_components.dir
+/home/yuval/software/my_simulations/build/CMakeFiles/rebuild_cache.dir
+/home/yuval/software/my_simulations/build/CMakeFiles/edit_cache.dir
+/home/yuval/software/my_simulations/build/CMakeFiles/B1.dir
+/home/yuval/software/my_simulations/build/CMakeFiles/exampleB1.dir

@@ -179,5 +179,4 @@ void detectorEvent::Print(){
             
         }
     }
-    std::cout << std::endl;
 }

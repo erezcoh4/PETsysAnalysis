@@ -1,0 +1,11 @@
+/run/numberOfThreads 3
+/run/useMaximumLogicalCores
+/run/initialize
+
+/gun/particle ion
+/gun/ion 98 252
+/gun/energy 0 MeV
+#
+/run/printProgress 100000
+/run/beamOn 5000000
+

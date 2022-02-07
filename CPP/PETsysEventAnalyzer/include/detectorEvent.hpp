@@ -32,6 +32,10 @@ public:
                    int N,
                    std::string setup="unknown");
     
+//    // operators
+//    detectorEvent& detectorEvent::operator = (){
+//        return *this;
+//    }
     
     int     DetermineWhichDetector (std::vector<int> channels, std::string setup="unknown");
     void                     Print ();
@@ -59,12 +63,17 @@ public:
 
     // Setters
     void                  SetSetup (std::string setup)      {fsetup = setup;};
+    void                  SetNhits ( int N )                {fN = N;};
     void                SetEventID ( int eventID )          {feventID = eventID;};
     void               SetDetector ( int detector )         {fdetector = detector;};
     // define the event time as the time of the first SiPM hit in the event
     void              SetEventTime ()                       { ftime_ms = *(std::min_element(ft_ms.begin(), ft_ms.end())); }
+    // fix the event time
+    void         SetEventGivenTime ( double time_ms)        { ftime_ms = time_ms; }
     // define the event time as the average time of all the SiPM hits
     void            SetEventCharge ()                       { fQtot = std::accumulate(fQ.begin(), fQ.end(), 0.0);  }
+    // fix the event charge
+    void       SetEventGivenCharge ( double Qtot)        { fQtot = Qtot; }
 
     // add or remove hit
     void                    AddHit ( double hit_time_ms, double hit_charge, int hit_channel );
@@ -86,11 +95,11 @@ public:
     
 private:
     
-    bool            fIsGoodEvent;
+    bool                fIsGoodEvent;
     int                 feventID;
     std::vector<int>    fchannels;  // channel numbers
     std::vector<double> ft_ms;      // time of each channel fire in ms
-    std::vector<double>  fQ;        // charge of each channel fire in ADC units
+    std::vector<double> fQ;        // charge of each channel fire in ADC units
     double  ftime_ms;               // time of event in ms (convert here to ms since ns gives too-large numbers)
     double  fQtot;
     int     fN;

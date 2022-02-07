@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>B1-Release@build</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.cdt.make.core.makeBuilder</name>
+			<triggers>clean,full,incremental,</triggers>
+			<arguments>
+				<dictionary>
+					<key>org.eclipse.cdt.core.errorOutputParser</key>
+					<value>org.eclipse.cdt.core.MakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GASErrorParser;org.eclipse.cdt.core.GLDErrorParser;</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.append_environment</key>
+					<value>true</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.autoBuildTarget</key>
+					<value>all</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.build.arguments</key>
+					<value>-j3</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.build.command</key>
+					<value>/usr/bin/make</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.build.location</key>
+					<value>/home/yuval/software/my_simulations/build</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.build.target.auto</key>
+					<value>all</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.build.target.clean</key>
+					<value>clean</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.build.target.inc</key>
+					<value>all</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.buildArguments</key>
+					<value></value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.buildLocation</key>
+					<value>/home/yuval/software/my_simulations/build</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.cleanBuildTarget</key>
+					<value>clean</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.contents</key>
+					<value>org.eclipse.cdt.make.core.activeConfigSettings</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.enableAutoBuild</key>
+					<value>false</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.enableCleanBuild</key>
+					<value>true</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.enableFullBuild</key>
+					<value>true</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.enabledIncrementalBuild</key>
+					<value>true</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.environment</key>
+					<value>VERBOSE=1|CMAKE_NO_VERBOSE=1|</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.fullBuildTarget</key>
+					<value>all</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.stopOnError</key>
+					<value>true</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.useDefaultBuildCmd</key>
+					<value>false</value>
+				</dictionary>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.cdt.make.core.ScannerConfigBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.cdt.make.core.makeNature</nature>
+		<nature>org.eclipse.cdt.make.core.ScannerConfigNature</nature>
+		<nature>org.eclipse.cdt.core.ccnature</nature>
+		<nature>org.eclipse.cdt.core.cnature</nature>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>[Source directory]</name>
+			<type>2</type>
+			<location>/home/yuval/software/my_simulations/rosi_alpha</location>
+		</link>
+		<link>
+			<name>[Subprojects]</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Subprojects]/B1</name>
+			<type>2</type>
+			<location>/home/yuval/software/my_simulations/rosi_alpha</location>
+		</link>
+		<link>
+			<name>[Targets]/[exe] exampleB1/</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[exe] exampleB1/CMake Rules</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[exe] exampleB1/Header Files</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[exe] exampleB1/Object Files</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[exe] exampleB1/Object Libraries</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[exe] exampleB1/Precompile Header File</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[exe] exampleB1/Resources</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[exe] exampleB1/Source Files</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[exe] exampleB1/Header Files/B1ActionInitialization.hh</name>
+			<type>1</type>
+			<location>/home/yuval/software/my_simulations/rosi_alpha/include/B1ActionInitialization.hh</location>
+		</link>
+		<link>
+			<name>[Targets]/[exe] exampleB1/Header Files/B1Analysis.hh</name>
+			<type>1</type>
+			<location>/home/yuval/software/my_simulations/rosi_alpha/include/B1Analysis.hh</location>
+		</link>
+		<link>
+			<name>[Targets]/[exe] exampleB1/Header Files/B1DetectorConstruction.hh</name>
+			<type>1</type>
+			<location>/home/yuval/software/my_simulations/rosi_alpha/include/B1DetectorConstruction.hh</location>
+		</link>
+		<link>
+			<name>[Targets]/[exe] exampleB1/Header Files/B1EventAction.hh</name>
+			<type>1</type>
+			<location>/home/yuval/software/my_simulations/rosi_alpha/include/B1EventAction.hh</location>
+		</link>
+		<link>
+			<name>[Targets]/[exe] exampleB1/Header Files/B1PrimaryGeneratorAction.hh</name>
+			<type>1</type>
+			<location>/home/yuval/software/my_simulations/rosi_alpha/include/B1PrimaryGeneratorAction.hh</location>
+		</link>
+		<link>
+			<name>[Targets]/[exe] exampleB1/Header Files/B1SteppingAction.hh</name>
+			<type>1</type>
+			<location>/home/yuval/software/my_simulations/rosi_alpha/include/B1SteppingAction.hh</location>
+		</link>
+		<link>
+			<name>[Targets]/[exe] exampleB1/Header Files/RunAction.hh</name>
+			<type>1</type>
+			<location>/home/yuval/software/my_simulations/rosi_alpha/include/RunAction.hh</location>
+		</link>
+		<link>
+			<name>[Targets]/[exe] exampleB1/Header Files/ScintHit.hh</name>
+			<type>1</type>
+			<location>/home/yuval/software/my_simulations/rosi_alpha/include/ScintHit.hh</location>
+		</link>
+		<link>
+			<name>[Targets]/[exe] exampleB1/Header Files/ScintSD.hh</name>
+			<type>1</type>
+			<location>/home/yuval/software/my_simulations/rosi_alpha/include/ScintSD.hh</location>
+		</link>
+		<link>
+			<name>[Targets]/[exe] exampleB1/Header Files/StackingAction.hh</name>
+			<type>1</type>
+			<location>/home/yuval/software/my_simulations/rosi_alpha/include/StackingAction.hh</location>
+		</link>
+		<link>
+			<name>[Targets]/[exe] exampleB1/Source Files/B1ActionInitialization.cc</name>
+			<type>1</type>
+			<location>/home/yuval/software/my_simulations/rosi_alpha/src/B1ActionInitialization.cc</location>
+		</link>
+		<link>
+			<name>[Targets]/[exe] exampleB1/Source Files/B1DetectorConstruction.cc</name>
+			<type>1</type>
+			<location>/home/yuval/software/my_simulations/rosi_alpha/src/B1DetectorConstruction.cc</location>
+		</link>
+		<link>
+			<name>[Targets]/[exe] exampleB1/Source Files/B1EventAction.cc</name>
+			<type>1</type>
+			<location>/home/yuval/software/my_simulations/rosi_alpha/src/B1EventAction.cc</location>
+		</link>
+		<link>
+			<name>[Targets]/[exe] exampleB1/Source Files/B1PrimaryGeneratorAction.cc</name>
+			<type>1</type>
+			<location>/home/yuval/software/my_simulations/rosi_alpha/src/B1PrimaryGeneratorAction.cc</location>
+		</link>
+		<link>
+			<name>[Targets]/[exe] exampleB1/Source Files/B1SteppingAction.cc</name>
+			<type>1</type>
+			<location>/home/yuval/software/my_simulations/rosi_alpha/src/B1SteppingAction.cc</location>
+		</link>
+		<link>
+			<name>[Targets]/[exe] exampleB1/Source Files/RunAction.cc</name>
+			<type>1</type>
+			<location>/home/yuval/software/my_simulations/rosi_alpha/src/RunAction.cc</location>
+		</link>
+		<link>
+			<name>[Targets]/[exe] exampleB1/Source Files/ScintHit.cc</name>
+			<type>1</type>
+			<location>/home/yuval/software/my_simulations/rosi_alpha/src/ScintHit.cc</location>
+		</link>
+		<link>
+			<name>[Targets]/[exe] exampleB1/Source Files/ScintSD.cc</name>
+			<type>1</type>
+			<location>/home/yuval/software/my_simulations/rosi_alpha/src/ScintSD.cc</location>
+		</link>
+		<link>
+			<name>[Targets]/[exe] exampleB1/Source Files/StackingAction.cc</name>
+			<type>1</type>
+			<location>/home/yuval/software/my_simulations/rosi_alpha/src/StackingAction.cc</location>
+		</link>
+		<link>
+			<name>[Targets]/[exe] exampleB1/Source Files/exampleB1.cc</name>
+			<type>1</type>
+			<location>/home/yuval/software/my_simulations/rosi_alpha/exampleB1.cc</location>
+		</link>
+	</linkedResources>
+</projectDescription>

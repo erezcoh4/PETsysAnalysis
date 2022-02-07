@@ -54,10 +54,13 @@ public:
     
     // csv files
     // read group csv-file and return a vector of vector of doubles
-    std::vector< std::vector<double> > ReadPetSysCSV ( std::string filename, int Nrows=-1 );
+    std::vector< std::vector<double> >  ReadCSV ( std::string filename, int Nrows=-1 );
     // results are vector of "rows", each includes the following:
     // if DataType == single,   PETsysData vector = {'time [ps]','charge','channel'}
     // if DataType == group,    PETsysData vector = {'N(SiPMs)','n(SiPM)','time [ps]','charge','channel'}
+    
+    std::vector< detectorEvent >   ReadEventsCSV ( std::string filename, int Nrows=-1 );
+    // if DataType == events,   Events vector     = {'eventID','N(SiPMs)','time[ms]','Qtot[a.u.]','detector','channels'}
 
     
     
