@@ -433,7 +433,7 @@ void auxiliary::WriteEventToCSV ( detectorEvent event ){
     csvfile
     << event.GetEventID()      << ","
     << event.GetNhits()        << ","
-    << std::setprecision(12) << event.GetEventTime()    << ","
+    << std::setprecision(15) << event.GetEventTime()    << ","
     << event.GetEventCharge()  << ","
     << event.GetDetector()     << ",";
     
@@ -443,6 +443,18 @@ void auxiliary::WriteEventToCSV ( detectorEvent event ){
     }
     csvfile << "]";
     csvfile << std::endl;
+    
+    if (event.GetEventID()==340217 ||
+        event.GetEventID()==340218 ||
+        event.GetEventID()==357817 ||
+        event.GetEventID()==357818 ||
+        event.GetEventID()==369732 ||
+        event.GetEventID()==369733 ) {
+        
+        std::cout << "Found event " << event.GetEventID() << std::endl;
+        event.Print();
+        
+    }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

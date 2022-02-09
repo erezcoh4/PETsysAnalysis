@@ -153,11 +153,12 @@ void detectorEvent::Print(){
     std::cout
     << "event: "        << feventID
     << ", N(SiPMs): "   << fN       << ", Qtot: " << fQtot
-    << std::setprecision(10)
-    << ", event time: " << ftime_ms << " ms"
+    << std::setprecision(15)
+    << ", event time: " << ftime_ms*1e6 << " ns"
     << ", detector: "   << fdetector
     << ", IsGood: "     << CheckIfEventIsGood()
-    << std::endl << ", channels: [";
+    << std::endl
+    << "Channels: [";
     for (size_t chIdx=0; chIdx < fchannels.size(); chIdx++){
         std::cout << fchannels.at(chIdx) << ",";
     }
@@ -166,6 +167,12 @@ void detectorEvent::Print(){
     if (fHits.size() > 64) {
         std::cout << fHits.size() << " hits in event " << feventID << std::endl;
     }
+    
+    std::cout << "SiPM hit times: ";
+    for (size_t chIdx=0; chIdx < fchannels.size(); chIdx++){
+        std::cout << fchannels.at(chIdx) << " (" << std::setprecision(15) << ft_ms.at(chIdx)*1e6 << " ns), ";
+    }
+    std::cout << std::endl;
 
     // check if there is more than a single hit from each channel
     for (auto hit1:fHits) {

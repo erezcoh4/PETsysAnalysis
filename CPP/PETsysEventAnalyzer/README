@@ -1,7 +1,8 @@
 
  general PETsys group analyser / event collector
  
- last edit Jan-24, 2022 (EOC)
+ last edit Feb-9, 2022 (EOC)
+ 
 
  execute:
  --------------------------
@@ -35,6 +36,7 @@
     data - from PETsys:
     ./build/apps/PETsysEventAnalyzer BoxSi_proto2.2 vth_1PE/ToF_measurements background 10_sec single
     ./build/apps/PETsysEventAnalyzer BoxSi_proto2.2 vth_1PE/ToF_measurements nToF_Cf252 10_sec single
+    ./build/apps/PETsysEventAnalyzer BoxSi_proto2.2 vth_1PE/ToF_measurements nToF_Cf252 5000_sec single 1 100000
     ./build/apps/PETsysEventAnalyzer BoxSi_proto2.2 vth_1PE/Cf252_data Cf252 100_sec single
     ./build/apps/PETsysEventAnalyzer BoxSi_proto2.2 vth_1PE/KETEK_QDC_calibration_using_gamma_sources only_KETEK_vth12e_5_Bkg 100sec single
     
