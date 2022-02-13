@@ -58,6 +58,7 @@ public:
     // results are vector of "rows", each includes the following:
     // if DataType == single,   PETsysData vector = {'time [ps]','charge','channel'}
     // if DataType == group,    PETsysData vector = {'N(SiPMs)','n(SiPM)','time [ps]','charge','channel'}
+    // if DataType == group/PSD,PETsysData vector = {'N(SiPMs)','n(SiPM)','time [ps]','charge','channel'}
     
     std::vector< detectorEvent >   ReadEventsCSV ( std::string filename, int Nrows=-1 );
     // if DataType == events,   Events vector     = {'eventID','N(SiPMs)','time[ms]','Qtot[a.u.]','detector','channels'}
@@ -92,6 +93,7 @@ public:
     std::vector<detectorEvent>                    CollectEvents (std::vector< std::vector<double> > PETsysData, std::string DataType="group");
     std::vector<detectorEvent>         CollectEventsFromSingles (std::vector< std::vector<double> > PETsysData);
     std::vector<detectorEvent>          CollectEventsFromGroups (std::vector< std::vector<double> > PETsysData);
+    std::vector<detectorEvent>   CollectEventsFromGroupsWithPSD (std::vector< std::vector<double> > PETsysData);
 
     // separate events that include SiPMs from different detectors and filter "good" events
     std::vector<detectorEvent>          SeparateAndFilterEvents (std::vector<detectorEvent> collected_events);

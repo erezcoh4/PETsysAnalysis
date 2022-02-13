@@ -56,7 +56,7 @@ std::vector< std::vector<double> > auxiliary::ReadCSV( std::string filename, int
 
 
 // csv files
-// read PetSys (single/group) csv-file
+// read Events-csv file that was either created by this app or using a MC
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 std::vector< detectorEvent > auxiliary::ReadEventsCSV( std::string filename, int Nrows ){
     // read a CSV file of
@@ -172,13 +172,17 @@ void auxiliary::PrintSummary(std::vector<detectorEvent> events){
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-std::vector<detectorEvent> auxiliary::CollectEvents(std::vector< std::vector<double> > PETsysData, std::string DataType){
+std::vector<detectorEvent> auxiliary::CollectEvents(std::vector< std::vector<double> > PETsysData,
+                                                    std::string DataType){
     std::vector<detectorEvent> events;
     if (DataType.compare("single")==0) {
         events = CollectEventsFromSingles( PETsysData );
     }
     else if (DataType.compare("group")==0) {
         events = CollectEventsFromGroups( PETsysData );
+    }
+    else if (DataType.compare("group_PSD")==0) {
+        events = CollectEventsFromGroupsWithPSD( PETsysData );
     }
     if (verbose>3) {
         std::cout << "done collecting events from singles:" << std::endl;
@@ -243,6 +247,50 @@ std::vector<detectorEvent> auxiliary::CollectEventsFromSingles(std::vector< std:
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 std::vector<detectorEvent> auxiliary::CollectEventsFromGroups(std::vector< std::vector<double> > PETsysData){
+    std::vector<detectorEvent> events;
+    // each row is a hit
+    // for each hit, the columns are: 'N(SiPMs)','n(SiPM)','time','charge','channel'
+    std::vector<double> t_ms;
+    std::vector<int>    channels;
+    std::vector<double> Q;
+    
+    int eventNumber = 0;
+    
+    for (size_t rowIdx=0; rowIdx<PETsysData.size(); rowIdx++){
+        
+        int     N       = int(PETsysData.at(rowIdx).at(0));
+        int     n       = int(PETsysData.at(rowIdx).at(1));
+        // convert to time in ms here since the long numbers (PETsys group data time are given in ps) are too long for the computer to digest
+        double  time_ms = double(PETsysData.at(rowIdx).at(2))/1.e9;
+        double  charge  = PETsysData.at(rowIdx).at(3); // ToDo: add lineariseChargeDeposited
+        int     ch      = PETsysData.at(rowIdx).at(4);
+        
+        
+        if (verbose>2){
+            std::cout<< "N: " << N << ", n: " << n << ", ch: " << ch  << std::setprecision(14) << ", time: " << time_ms << " ms" << std::endl ;
+        }
+        
+        t_ms.push_back(time_ms);
+        channels.push_back(ch);
+        Q.push_back(charge);
+        
+        if (n==N-1) {
+            // create detector event
+            detectorEvent event( eventNumber, channels, t_ms , Q, N, fsetup) ;
+            if (verbose>2) event.Print();
+            events.push_back(event);
+            eventNumber++;
+            Q.clear();
+            t_ms.clear();
+            channels.clear();
+        }
+    }
+    return events;
+}
+
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+std::vector<detectorEvent> auxiliary::CollectEventsFromGroupsWithPSD(std::vector< std::vector<double> > PETsysData){
     std::vector<detectorEvent> events;
     // each row is a hit
     // for each hit, the columns are: 'N(SiPMs)','n(SiPM)','time','charge','channel'
@@ -444,17 +492,18 @@ void auxiliary::WriteEventToCSV ( detectorEvent event ){
     csvfile << "]";
     csvfile << std::endl;
     
-    if (event.GetEventID()==340217 ||
-        event.GetEventID()==340218 ||
-        event.GetEventID()==357817 ||
-        event.GetEventID()==357818 ||
-        event.GetEventID()==369732 ||
-        event.GetEventID()==369733 ) {
-        
-        std::cout << "Found event " << event.GetEventID() << std::endl;
-        event.Print();
-        
-    }
+    // debug...
+    //    if (event.GetEventID()==340217 ||
+    //        event.GetEventID()==340218 ||
+    //        event.GetEventID()==357817 ||
+    //        event.GetEventID()==357818 ||
+    //        event.GetEventID()==369732 ||
+    //        event.GetEventID()==369733 ) {
+    //
+    //        std::cout << "Found event " << event.GetEventID() << std::endl;
+    //        event.Print();
+    //
+    //    }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

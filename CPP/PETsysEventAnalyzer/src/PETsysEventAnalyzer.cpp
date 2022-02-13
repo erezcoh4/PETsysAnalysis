@@ -8,6 +8,7 @@ int main(int argc, char **argv){
 
     bool doTimeDifferences  = false;
     bool doMonitorEvents    = false;
+    bool doExtractSDT       = false; // extract singles, doubles, triples
     
     std::string     setup = "BoxSi_proto2.2";
     std::string    subdir = "vth_1PE";
@@ -67,7 +68,6 @@ int main(int argc, char **argv){
         // (1) read SiPM (PETsys) data
         std::cout   << std::endl << "(1) read SiPM " << DataType << " data from file" << std::endl << filename << std::endl;
         std::vector< std::vector<double> > PETsysData = aux->ReadCSV( filename, Nrows );
-
         
         // (2) collect detector events
         std::cout << std::endl << "(2) collect detector events" << std::endl << std::endl;
@@ -95,13 +95,19 @@ int main(int argc, char **argv){
     // (5) compile array of time difference from each detection to form Rossi-alpha distribution
     // this takes some time and is not required usually
     if (doTimeDifferences){
-        std::cout << std::endl << "(5) compile array of time difference from each detection to form Rossi-alpha distribution" << std::endl<< std::endl;
+        std::cout
+        << std::endl
+        << "(5) compile array of time difference from each detection to form Rossi-alpha distribution"
+        << std::endl
+        << std::endl;
         std::vector<double> time_differences = aux -> CollectDetectionTimeDifferencesArray( events );
         aux -> StreamTimeDifferencesToCSV( time_differences, filelabel + "_time_differences" );
     }
     
     // (6) extract s,d,t
-    aux -> ExtractSinglesDoublesTriples(events);
+    if (doExtractSDT){
+        aux -> ExtractSinglesDoublesTriples(events);
+    }
     
     // (7) print interesting event characteristics for monitoring
     if (doMonitorEvents){

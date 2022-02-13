@@ -4,13 +4,13 @@
  last edit Feb-9, 2022 (EOC)
  
 
- execute:
+ # Execute:
  --------------------------
  
- ./build/apps/PETsysEventAnalyzer <setup> <DataLabel> <dT> <DataType> <verbose> <Nrows> 
+ ./build/apps/PETsysEventAnalyzer <setup> <subdir> <DataLabel> <dT> <DataType> <verbose> <Nrows>
  
  
- supported options:
+ # Supported options:
  --------------------------
  
     setup                   BoxSi_proto2.1
@@ -21,30 +21,36 @@
     DataType                single
                             group
                             events
+                            group_PSD
                             
     Nrows                   defaul is all events ( Nrows=-1 )
 
  
  
  
-  execution examples:
+  # Execution examples:
  --------------------------
 
-    MC:
+    *MC:*
     ./build/apps/PETsysEventAnalyzer BoxSi_proto2.2 Geant4Sims/YuvalSimulations G4sim_Cf252_50.0mCi 1_sec events
 
-    data - from PETsys:
+    *data - from PETsys:*
     ./build/apps/PETsysEventAnalyzer BoxSi_proto2.2 vth_1PE/ToF_measurements background 10_sec single
     ./build/apps/PETsysEventAnalyzer BoxSi_proto2.2 vth_1PE/ToF_measurements nToF_Cf252 10_sec single
     ./build/apps/PETsysEventAnalyzer BoxSi_proto2.2 vth_1PE/ToF_measurements nToF_Cf252 5000_sec single 1 100000
     ./build/apps/PETsysEventAnalyzer BoxSi_proto2.2 vth_1PE/Cf252_data Cf252 100_sec single
     ./build/apps/PETsysEventAnalyzer BoxSi_proto2.2 vth_1PE/KETEK_QDC_calibration_using_gamma_sources only_KETEK_vth12e_5_Bkg 100sec single
-    
-    data - only events:
+
+
+    *data - from PETsys with dual readout splitter for PSD:*
+    ./build/apps/PETsysEventAnalyzer PSD_1.3 Cf252 Cf252_AMCRYS_UPS113NG 10_sec group_PSD
+
+
+    *data - only events:|*
     ./build/apps/PETsysEventAnalyzer BoxSi_proto2.2 vth_1PE/Cf252_data Cf252 100_sec events
     
     
-    other data examples - from PETsys:
+    *other data examples - from PETsys:*
     ./build/apps/PETsysEventAnalyzer BoxSi_proto2.2 VariableThresholdMeasurements noSource_Vth4 10sec single
     ./build/apps/PETsysEventAnalyzer BoxSi_proto2.2 vth_1PE/Cf252_data Cf252  10_sec single
         
