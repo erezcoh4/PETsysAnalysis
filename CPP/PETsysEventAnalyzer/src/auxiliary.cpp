@@ -181,8 +181,24 @@ std::vector<detectorEvent> auxiliary::CollectEvents(std::vector< std::vector<dou
     else if (DataType.compare("group")==0) {
         events = CollectEventsFromGroups( PETsysData );
     }
+    if (verbose>3) {
+        std::cout << "done collecting events from singles:" << std::endl;
+        for (auto event: events) event.Print();
+        std::cout << std::endl;
+    }
+    return events;
+}
+
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+std::vector<SiPMChannelPair> auxiliary::CollectHitsPSD(std::vector< std::vector<double> > PETsysData,
+                                                    std::string DataType){
+    std::vector<SiPMChannelPair> events;
+    if (DataType.compare("single_PSD")==0) {
+        events = CollectHitPairsPSDFromSingles( PETsysData );
+    }
     else if (DataType.compare("group_PSD")==0) {
-        events = CollectEventsFromGroupsWithPSD( PETsysData );
+        events = CollectHitPairsPSDFromGroups( PETsysData );
     }
     if (verbose>3) {
         std::cout << "done collecting events from singles:" << std::endl;
@@ -214,6 +230,10 @@ std::vector<detectorEvent> auxiliary::CollectEventsFromSingles(std::vector< std:
         int detector = event.ChannelNumberToDetector( channel , fsetup );
         bool AddedHitToEvent = false;
         int Nevents = (int)events.size();
+        
+        // We first step over all Existing events in our list
+        // and check if we can add this hit to one of them
+
         for (size_t evtIdx = std::max( 0, Nevents - 20 ); evtIdx < events.size(); evtIdx++) {
             detectorEvent & event = events.at(evtIdx);
             if (    (event.GetDetector() == detector)
@@ -223,7 +243,13 @@ std::vector<detectorEvent> auxiliary::CollectEventsFromSingles(std::vector< std:
                 break;
             }
         }
+        
+        // If there were no events to which this hit was added,
+        // we create a new event
+
         if ( AddedHitToEvent == false ){
+            // this means that we do not add hits to this event
+            // but rather start a new event
             detectorEvent new_event;
             new_event.  SetEventID ( eventID );
             new_event.    SetSetup ( fsetup );
@@ -290,13 +316,163 @@ std::vector<detectorEvent> auxiliary::CollectEventsFromGroups(std::vector< std::
 
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-std::vector<detectorEvent> auxiliary::CollectEventsFromGroupsWithPSD(std::vector< std::vector<double> > PETsysData){
-    std::vector<detectorEvent> events;
+std::vector<SiPMChannelPair> auxiliary::CollectHitPairsPSDFromSingles(std::vector< std::vector<double> > PETsysData){
+    //
+    // collect pairs of channel hits from the same SiPM
+    // according to table-10 of the FEB/s 2ro data-sheet,
+    // and couple them together to get the prompt-charge and the total-charge
+    // for the same SiPM hit
+    // The pairing is done if the pair of channels saw a hit (crossed-threshold)
+    // within 10 ns (1-3 ns variation between channels is expected due to wiring [Luis F., Feb-2022])
+    //
+    // For simplicity and to keep consistency with existing code above,
+    // this routine is implemented in two steps:
+    // (1) Collect "detector-events" like auxiliary::CollectEventsFromSingles()
+    // (2) Split pairs of channels that read the same SiPM, into SiPMChannelPair objects
+    //
+    // return:
+    // a vector of <SiPMChannelPair> objects to be written into a file
+    //
+    // Feb-16, 2022
+    //
+    
+    std::vector<SiPMChannelPair>    hitpairs;
+    // each row is a hit
+    // for each hit, the columns are: 'time','charge','channel'
+    std::vector<double> t_ms;
+    std::vector<int>    channels;
+    std::vector<double> Q;
+
+    detectorEvent   event;
+    SiPMChannelPair hitpair;
+    
+    int eventID = 0;
+    for (size_t rowIdx=0; rowIdx<PETsysData.size(); rowIdx++){
+        // convert to time in ms here since the long numbers (PETsys group data time are given in ps) are too long for the computer to digest
+        double  time_ms = double(PETsysData.at(rowIdx).at(0))/1.e9;
+        double  charge  = LinearizeQDC( PETsysData.at(rowIdx).at(1)) ;
+        int     channel = PETsysData.at(rowIdx).at(2);
+        int SiPM_number = hitpair.ChannelNumberToSiPM( channel );
+        
+        if (verbose>3){
+            std::cout << "row " << rowIdx
+            << ", time "        << std::setprecision(12) << time_ms << " ms "
+            << ", channel "     << channel
+            << ", SiPM_number " << SiPM_number
+            << std::endl;
+        }
+        
+        
+        
+        int detector = event.ChannelNumberToDetector( channel , fsetup );
+        bool AddedHitToEvent = false;
+        int Nhitpairs = (int)hitpairs.size();
+        
+        // We first step over all Existing events in our list
+        // and check if we can add this hit to one of them
+        for (size_t evtIdx = std::max( 0, Nhitpairs - 20 );
+             evtIdx < hitpairs.size();
+             evtIdx++) {
+            
+            SiPMChannelPair & hitpair = hitpairs.at(evtIdx);
+            double dt_ms = fabs(time_ms - hitpair.GetEventTime());
+            if (verbose>3){
+                std::cout    << " Comparing hit to event " << hitpair.GetEventID()
+                << " (det. "  << hitpair.GetDetector()
+                << ", dt "   << std::setprecision(3) << dt_ms*1.e6 << " ns "
+                << ", SiPM " << hitpair.GetSiPM() << ")"
+                << std::endl;
+            }
+
+            if (    (hitpair.GetDetector() == detector)
+                &&  (dt_ms < hitpair.GetPairTimeWindow())
+                &&  (hitpair.GetSiPM() == SiPM_number ) 
+                ) {
+                hitpair.AddHit( time_ms, charge, channel );
+                hitpair. CheckIfPairIsGood ();
+                hitpair.        SetQprompt ();
+                hitpair.         SetQtotal ();
+                hitpair.    SetTailToTotal ();
+
+                AddedHitToEvent = true;
+                
+                if (verbose>3){
+                    std::cout    << " Added hit to event " << hitpair.GetEventID()
+                    << std::endl;
+                    std::cout    << "break;" << std::endl;
+                }
+                break;
+            }
+        }
+        
+        // If there were no events to which this hit was added,
+        // we create a new event
+        if ( AddedHitToEvent == false ){
+
+            SiPMChannelPair new_hitpair;
+            new_hitpair.        SetEventID ( eventID );
+            new_hitpair.        SetVerbose ( verbose );
+            new_hitpair.          SetSetup ( fsetup );
+            new_hitpair.       SetDetector ( detector );
+            new_hitpair.            AddHit ( time_ms, charge, channel );
+            new_hitpair.           SetSiPM ();
+            
+            if (verbose>3){
+                std::cout    << " Creating a new event of a hit-pair "
+                << std::endl;
+                new_hitpair.Print();
+            }
+            
+            hitpairs.push_back( new_hitpair );
+            eventID++;
+        }
+        
+
+        if (verbose>2){
+            std::cout
+            << "Done stepping through "
+            << "channel " << channel  << " (detector " << detector << ")" << std::endl ;
+            PrintEmptyLine();
+        }
+    }
+
+    return hitpairs;
+}
+
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+std::vector<SiPMChannelPair> auxiliary::CollectHitPairsPSDFromGroups(std::vector< std::vector<double> > PETsysData){
+    //
+    // collect pairs of channel hits from the same SiPM
+    // according to table-10 of the FEB/s 2ro data-sheet,
+    // and couple them together to get the prompt-charge and the total-charge
+    // for the same SiPM hit
+    // The pairing is done if the pair of channels saw a hit (crossed-threshold)
+    // within 10 ns (1-3 ns variation between channels is expected due to wiring [Luis F., Feb-2022])
+    //
+    // For simplicity and to keep consistency with existing code above,
+    // this routine is implemented in two steps:
+    // (1) Collect "detector-events" using auxiliary::CollectEventsFromGroups()
+    // (2) Split pairs of channels that read the same SiPM, into SiPMChannelPair objects
+    //
+    // return:
+    // a vector of <SiPMChannelPair> objects to be written into a file
+    //
+    // Feb-13, 2022
+    // NOTE:
+    // This routine is not finished, as
+    // it was deemed deprated in favour of CollectHitPairsFromSinglesWithPSD()
+    //
+    std::vector<SiPMChannelPair>    sipm_channel_pair_events;
+    std::vector<detectorEvent>      events;
+    
     // each row is a hit
     // for each hit, the columns are: 'N(SiPMs)','n(SiPM)','time','charge','channel'
     std::vector<double> t_ms;
     std::vector<int>    channels;
     std::vector<double> Q;
+    std::vector<double> Q_prompt;
+    std::vector<double> Q_total;
     
     int eventNumber = 0;
     
@@ -304,14 +480,20 @@ std::vector<detectorEvent> auxiliary::CollectEventsFromGroupsWithPSD(std::vector
         
         int     N       = int(PETsysData.at(rowIdx).at(0));
         int     n       = int(PETsysData.at(rowIdx).at(1));
-        // convert to time in ms here since the long numbers (PETsys group data time are given in ps) are too long for the computer to digest
+        // convert to time in ms here since the long numbers
+        // (PETsys group data time are given in ps) are too long for the computer to digest
         double  time_ms = double(PETsysData.at(rowIdx).at(2))/1.e9;
-        double  charge  = PETsysData.at(rowIdx).at(3); // ToDo: add lineariseChargeDeposited
+        double  charge  = LinearizeQDC( PETsysData.at(rowIdx).at(3)) ;
         int     ch      = PETsysData.at(rowIdx).at(4);
         
-        
         if (verbose>2){
-            std::cout<< "N: " << N << ", n: " << n << ", ch: " << ch  << std::setprecision(14) << ", time: " << time_ms << " ms" << std::endl ;
+            std::cout
+            << "N: "        << N
+            << ", n: "      << n
+            << ", ch: "     << ch
+            << std::setprecision(14)
+            << ", time: " << time_ms << " ms"
+            << std::endl ;
         }
         
         t_ms.push_back(time_ms);
@@ -320,6 +502,10 @@ std::vector<detectorEvent> auxiliary::CollectEventsFromGroupsWithPSD(std::vector
         
         if (n==N-1) {
             // create detector event
+            
+            SiPMChannelPair sipm_channel_pair_event( eventNumber, channels, t_ms , Q, N, fsetup, verbose );
+            sipm_channel_pair_events.push_back( sipm_channel_pair_event );
+            
             detectorEvent event( eventNumber, channels, t_ms , Q, N, fsetup) ;
             if (verbose>2) event.Print();
             events.push_back(event);
@@ -329,7 +515,7 @@ std::vector<detectorEvent> auxiliary::CollectEventsFromGroupsWithPSD(std::vector
             channels.clear();
         }
     }
-    return events;
+    return sipm_channel_pair_events;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -465,8 +651,48 @@ std::vector<detectorEvent> auxiliary::SeparateAndFilterEvents(std::vector<detect
     return separated_events;
 }
 
+
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-void auxiliary::StreamEventsToCSV (std::vector<detectorEvent> events, std::string filename, std::string header){
+std::vector<SiPMChannelPair> auxiliary::SeparateAndFilterEvents(std::vector<SiPMChannelPair> collected_events){
+    
+    std::vector<SiPMChannelPair> filtered_events;
+    
+    for (auto event: collected_events){
+        int eventID = event.GetEventID();
+
+        if (verbose>3){
+            std::cout    << " SeparateAndFilterEvents() "
+            << std::endl << " collected_event #" << eventID
+            << std::endl;
+            event.Print();
+        }
+
+        
+        if ( event.CheckIfPairIsGood() ) {
+            filtered_events.push_back(event);
+            if (verbose>2) {
+                std::cout << "*Kept* (retained) event " << event.GetEventID() << std::endl;
+                event.Print();
+            }
+        } else {
+            if (verbose>2) {
+                std::cout << "*Omitted* (filtered out) event " << event.GetEventID() << std::endl;
+                event.Print();
+            }
+        }
+        if (verbose>2) {
+            std::cout << "done splitting and filtering event " << eventID << std::endl;
+            std::cout << "------------------------------------------------------- " << std::endl;
+        }
+        
+    }
+    return filtered_events;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+void auxiliary::StreamEventsToCSV (std::vector<detectorEvent> events,
+                                   std::string filename,
+                                   std::string header){
 
     OpenEventsCSV(filename, header);
     Debug(0,"writing " + std::to_string(events.size()) + " events");
@@ -477,7 +703,22 @@ void auxiliary::StreamEventsToCSV (std::vector<detectorEvent> events, std::strin
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+void auxiliary::StreamEventsToCSV (std::vector<SiPMChannelPair> events,
+                                   std::string filename,
+                                   std::string header){
+
+    OpenEventsCSV(filename, header);
+    Debug(0,"writing " + std::to_string(events.size()) + " events");
+    for (auto event: events){
+        WriteEventToCSV( event );
+    }
+    close_events_csv();
+}
+
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void auxiliary::WriteEventToCSV ( detectorEvent event ){
+    // "eventID,N(SiPMs),time[ms],Qtot[a.u.],detector,channels"
     csvfile
     << event.GetEventID()      << ","
     << event.GetNhits()        << ","
@@ -504,6 +745,27 @@ void auxiliary::WriteEventToCSV ( detectorEvent event ){
     //        event.Print();
     //
     //    }
+}
+
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+void auxiliary::WriteEventToCSV ( SiPMChannelPair pair ){
+    // "eventID,SiPM,time[ms],Q(prompt)[a.u.],Q(total)[a.u.],tail/total,detector,channels"
+    csvfile
+    << pair.GetEventID()        << ","
+    << pair.GetSiPM()           << ","
+    << std::setprecision(15)    << pair.GetEventTime()    << ","
+    << pair.GetQprompt()        << ","
+    << pair.GetQtotal()         << ","
+    << pair.GetTailToTotal()    << ","
+    << pair.GetDetector()       << ",";
+    
+    csvfile << "[";
+    for (auto ch:pair.GetChannels()){
+        csvfile << ch << ";";
+    }
+    csvfile << "]";
+    csvfile << std::endl;    
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -693,4 +955,22 @@ void auxiliary::StreamTimeDifferencesToCSV (std::vector<double> time_differences
     }
     // csvfile << std::endl;
     csvfile.close();
+}
+
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+double auxiliary::LinearizeQDC ( double Q ) {
+    // linearise deposited charge (QDC) in the TOFPET2
+    // Charge conversion to energy
+    // [PETsys TOFPET2 ASIC Evaluation Kit - Software User Guide v2019.09, p. 25]
+    // PETsys Electronics has certified that using
+    //$$ E=P_0 \cdot P_1^{Q^{P2}} + P_3 \cdot Q - P_0$$
+    // with
+    //$$ (P_0, P_1, P_2, P_3) = (8.00000, 1.04676, 1.02734, 0.31909) $$
+    //allows to approximate the non-linear response of the ASIC's QDC for all channels,
+    //up to a level of 1-2% on the energy resolution of the 511 keV photopeak.
+    double P[4] = {8.00000, 1.04676, 1.02734, 0.31909};
+    double linearisedQ = P[0]*( pow(P[1], pow(Q,P[2]))) + P[3]*Q - P[0];
+    
+    return linearisedQ;
 }

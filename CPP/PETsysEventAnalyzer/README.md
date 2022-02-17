@@ -21,6 +21,7 @@
     DataType                single
                             group
                             events
+                            single_PSD
                             group_PSD
                             
     Nrows                   defaul is all events ( Nrows=-1 )
@@ -43,10 +44,10 @@
 
 
     *data - from PETsys with dual readout splitter for PSD:*
-    ./build/apps/PETsysEventAnalyzer PSD_1.3 Cf252 Cf252_AMCRYS_UPS113NG 10_sec group_PSD
+    ./build/apps/PETsysEventAnalyzer PSD_1.3 Cf252 Cf252_AMCRYS_UPS113NG 10_sec single_PSD 5
 
 
-    *data - only events:|*
+    *data - only events:*
     ./build/apps/PETsysEventAnalyzer BoxSi_proto2.2 vth_1PE/Cf252_data Cf252 100_sec events
     
     

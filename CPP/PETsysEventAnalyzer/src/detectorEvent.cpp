@@ -109,6 +109,27 @@ int detectorEvent::ChannelNumberToDetector(int channel, std::string setup) {
             detector = 0;
         }
     }
+    
+    if (setup.compare("PSD_1.3")==0){ // Feb-13, 2022
+        if ((512 <=channel)  && (channel <= 639)){
+            // The main SensL-PSD detector, in port 5
+            detector = 12;
+        }
+        else if ((640 <= channel) && (channel <= 767)){
+            // KETEK-1 in port 6
+            detector = 9;
+        }
+        else if ((896 <= channel) && (channel <= 1023)){
+            // KETEK-1 in port 8
+            detector = 3;
+        }
+        else{
+            // unknown
+            detector = 0;
+        }
+    }
+    
+    
     return detector;
 }
 

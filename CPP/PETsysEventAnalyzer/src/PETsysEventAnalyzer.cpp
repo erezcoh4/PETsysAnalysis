@@ -47,7 +47,8 @@ int main(int argc, char **argv){
     
     std::string filelabel = DataLabel + "_" + dTStr;
     std::string filename  = aux->csvpath + "/" + filelabel + "_" + DataType;
-    std::vector<detectorEvent> events;
+    std::vector<detectorEvent>      events;
+    std::vector<SiPMChannelPair>    eventsWithPSD;
     
     if (verbose>3){
         std::cout
@@ -61,7 +62,12 @@ int main(int argc, char **argv){
         << std::endl;
     }
     
-    if (DataType.compare("single")==0 || DataType.compare("group")==0){
+    if (    DataType.compare("single")      == 0
+        ||  DataType.compare("group")       == 0
+        ||  DataType.compare("single_PSD")  == 0
+        ||  DataType.compare("group_PSD")   == 0
+        )
+    {
         // if its a PETsys file (single / group), process the SiPM hits and generate a CSV of "events"
         filename  = aux->csvpath + "/" + filelabel + "_" + DataType + ".dat";
         
@@ -71,16 +77,36 @@ int main(int argc, char **argv){
         
         // (2) collect detector events
         std::cout << std::endl << "(2) collect detector events" << std::endl << std::endl;
-        std::vector<detectorEvent> collected_events = aux->CollectEvents( PETsysData, DataType );
+        if (    DataType.compare("single") == 0
+            ||  DataType.compare("group")  == 0 )
+        {
+            std::vector<detectorEvent> collected_events = aux->CollectEvents( PETsysData, DataType );
+            // (3) filter good and events separate events from multiple detectors
+            std::cout << std::endl
+            << "(3) filter good and events separate events from multiple detectors"
+            << std::endl<< std::endl;
             
-        // (3) filter good and events separate events from multiple detectors
-        std::cout << std::endl << "(3) filter good and events separate events from multiple detectors" << std::endl<< std::endl;
-        events = aux->SeparateAndFilterEvents(collected_events);
-        
-        // (4) stream separated events into output csv file
-        std::cout << std::endl << "(4) stream separated events into output csv file" << std::endl<< std::endl;
-        aux -> StreamEventsToCSV( events , filelabel + "_events" );
+            events = aux -> SeparateAndFilterEvents(collected_events);
+            // (4) stream separated events into output csv file
+            std::cout << std::endl << "(4) stream separated events into output csv file" << std::endl<< std::endl;
+            aux -> StreamEventsToCSV( events , filelabel + "_events" );
 
+        }
+        else if (    DataType.compare("single_PSD")  == 0
+                   ||  DataType.compare("group_PSD") == 0 )
+        {
+            std::vector<SiPMChannelPair> collected_events = aux->CollectHitsPSD( PETsysData, DataType );
+            // (3) filter good and events separate events from multiple detectors
+            std::cout << std::endl << "(3) filter good pairs " << std::endl<< std::endl;
+            eventsWithPSD = aux -> SeparateAndFilterEvents(collected_events);
+            
+            // (4) stream separated events into output csv file
+            std::cout << std::endl << "(4) stream separated events into output csv file" << std::endl<< std::endl;
+            aux -> StreamEventsToCSV( eventsWithPSD , filelabel + "_eventsWithPSD" );
+        }
+
+        
+        
     } else if (DataType.compare("events")==0){
         // if the input file is already sorted to "events"
         // we can skip the process of forming events,

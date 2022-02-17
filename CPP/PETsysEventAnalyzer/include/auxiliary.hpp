@@ -11,9 +11,12 @@
 #include <sstream>
 #include <utility> // std::pair
 #include <stdexcept> // std::runtime_error
-#include <detectorEvent.hpp> // std::runtime_error
 #include <algorithm>
 #include <math.h>       /* fabs */
+
+#include <detectorEvent.hpp> // std::runtime_error
+#include <SiPMChannelPair.hpp> // std::runtime_error
+
 
 #define ps 1.
 #define ns 1000.
@@ -70,9 +73,13 @@ public:
     void   StreamEventsToCSV ( std::vector<detectorEvent> events,
                               std::string filename = "events",
                               std::string header = "eventID,N(SiPMs),time[ms],Qtot[a.u.],detector,channels");
+    void   StreamEventsToCSV ( std::vector<SiPMChannelPair> eventsWithPSD,
+                              std::string filename = "eventsWithPSD",
+                              std::string header = "eventID,SiPM,time[ms],Q(prompt)[a.u.],Q(total)[a.u.],tail/total,detector,channels");
     void       OpenEventsCSV ( std::string filename, std::string header);
     
-    void     WriteEventToCSV ( detectorEvent event );
+    void     WriteEventToCSV ( detectorEvent    event );
+    void     WriteEventToCSV ( SiPMChannelPair  event );
     void    write_events_csv ( std::vector<double> values );
     void    close_events_csv ();
     
@@ -90,14 +97,20 @@ public:
     
     
     // collect events from SiPM group data
-    std::vector<detectorEvent>                    CollectEvents (std::vector< std::vector<double> > PETsysData, std::string DataType="group");
+    std::vector<detectorEvent>                    CollectEvents (std::vector< std::vector<double> > PETsysData,
+                                                                 std::string DataType="single");
     std::vector<detectorEvent>         CollectEventsFromSingles (std::vector< std::vector<double> > PETsysData);
     std::vector<detectorEvent>          CollectEventsFromGroups (std::vector< std::vector<double> > PETsysData);
-    std::vector<detectorEvent>   CollectEventsFromGroupsWithPSD (std::vector< std::vector<double> > PETsysData);
+    
+    std::vector<SiPMChannelPair>                 CollectHitsPSD (std::vector< std::vector<double> > PETsysData,
+                                                                 std::string DataType="single_PSD");
+    std::vector<SiPMChannelPair>  CollectHitPairsPSDFromSingles (std::vector< std::vector<double> > PETsysData);
+    std::vector<SiPMChannelPair>   CollectHitPairsPSDFromGroups (std::vector< std::vector<double> > PETsysData);
 
     // separate events that include SiPMs from different detectors and filter "good" events
     std::vector<detectorEvent>          SeparateAndFilterEvents (std::vector<detectorEvent> collected_events);
-    
+    std::vector<SiPMChannelPair>        SeparateAndFilterEvents (std::vector<SiPMChannelPair> collected_events);
+
     
     std::vector<double>    CollectDetectionTimeDifferencesArray (std::vector<detectorEvent> events,
                                                                  double dt_max_ms = 10);             // maximal time we consider for dt is 10 ms
@@ -106,7 +119,7 @@ public:
     void                           ExtractSinglesDoublesTriples (std::vector<detectorEvent> events,
                                                                  double R_gate = 100.e-6,           // gate for doubles and triples - 100 ns
                                                                  double RA_gate_delay = 100.e-3);   // gate delay for accidentals - 100 us
-
+    double                                         LinearizeQDC ( double Q=0 ) ;
     void                             StreamTimeDifferencesToCSV (std::vector<double> time_differences, std::string filename);
     
     
